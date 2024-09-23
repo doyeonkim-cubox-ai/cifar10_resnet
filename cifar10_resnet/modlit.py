@@ -18,22 +18,23 @@ class CIFARResnet(L.LightningModule):
         return self.model(x)
 
     def configure_optimizers(self):
-        def lr_fn(epoch):
-            if epoch < 2:
+        def lr_fn(step):
+            if step < 400:
                 if self.deeplr_opt == 'resnet110':
                     return 0.1
                 else:
                     return 1
-            if epoch < 90:
+            if step < 32000:
                 return 1
-            elif epoch < 135:
+            elif step < 48000:
                 return 0.1
             else:
                 return 0.01
         optimizer = torch.optim.SGD(self.model.parameters(), lr=1e-1, momentum=0.9, weight_decay=1e-4)
         scheduler = {
-            'scheduler' : torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_fn),
-            'name' : 'learning_rate'
+            'scheduler': torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_fn),
+            'name': 'learning_rate',
+            'interval': 'step'
         }
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 

@@ -11,14 +11,15 @@ class CIFAR10DataModule(L.LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.transform_train = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
+            transforms.Resize(32),
             transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, padding=4),
             transforms.ToTensor(),
-            transforms.Normalize([0.98666865, 0.96811334, 0.89657782], [0.4960096, 0.48888746, 0.52523543])
+            transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
             ])
         self.transform_test = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize([0.98666865, 0.96811334, 0.89657782], [0.4960096, 0.48888746, 0.52523543])
+            transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
         ])
 
     def prepare_data(self):

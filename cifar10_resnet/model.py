@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision
+import torch.nn.functional as F
 
 
 def pick(m: str):
@@ -30,15 +31,14 @@ def pick(m: str):
 
 
 class BasicBlock(nn.Module):
-    def __init__(self, in_planes, out_planes, stride=1, downsample=None):
+    def __init__(self, in_planes, out_planes, stride=1, opt=0):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_planes)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
         self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=3, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_planes)
-        self.stride = stride
-        self.downsample = downsample
+        self.opt = opt
 
     def forward(self, x):
         identity = x
@@ -48,25 +48,23 @@ class BasicBlock(nn.Module):
         out = self.relu(out)
         out = self.conv2(out)
         out = self.bn2(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
+        if self.opt != 0:
+            identity = F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, self.opt // 2, self.opt // 2), value=0)
         out += identity
         out = self.relu(out)
+
         return out
 
 
 class PlainBlock(nn.Module):
-    def __init__(self, in_planes, out_planes, stride=1, downsample=None):
+    def __init__(self, in_planes, out_planes, stride=1, opt=0):
         super(PlainBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_planes)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
         self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=3, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_planes)
-        self.stride = stride
-        self.downsample = downsample
+        self.opt = opt
 
     def forward(self, x):
         out = self.conv1(x)
@@ -86,15 +84,17 @@ class ResNet(nn.Module):
         self.in_planes = 16
         self.conv1 = nn.Conv2d(3, 16, 3, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
 
         self.layer1 = self._make_layers(block, 16, layers[0])
         self.layer2 = self._make_layers(block, 32, layers[1], stride=2)
         self.layer3 = self._make_layers(block, 64, layers[2], stride=2)
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(64, num_classes, bias=False)
 
-        torch.nn.init.xavier_uniform_(self.fc.weight)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight)
 
     def forward(self, x):
         out = self.conv1(x)
@@ -104,23 +104,21 @@ class ResNet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.avgpool(out)
+
         out = out.view(out.size(0), -1)
         out = self.fc(out)
 
         return out
 
     def _make_layers(self, block, planes, blocks, stride=1):
-        downsample = None
+        opt = 0
         if self.in_planes != planes or stride != 1:
-            downsample = nn.Sequential(
-                nn.Conv2d(self.in_planes, planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(planes)
-            )
+            opt = self.in_planes
         layers = []
-        layers.append(block(self.in_planes, planes, stride, downsample))
+        layers.append(block(self.in_planes, planes, stride, opt))
         self.in_planes = planes
         for i in range(1, blocks):
-            layers.append(block(self.in_planes, planes))
+            layers.append(block(self.in_planes, planes, stride=1))
         return nn.Sequential(*layers)
 
 

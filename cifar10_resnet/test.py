@@ -14,14 +14,6 @@ def main():
     parser.add_argument('-model', type=str, help='Pick Model(ex.resnet20)')
     m = parser.parse_args().model
 
-    # Data preprocessing
-    # transform = transforms.Compose([
-    #     transforms.ToTensor(),
-    #     transforms.RandomCrop((32, 32))
-    #     ])
-    # test = torchvision.datasets.CIFAR10(root='./cifar10', train=False, download=True, transform=transform)
-    # test_loader = torch.utils.data.DataLoader(test, batch_size=128, shuffle=False, num_workers=8)
-
     dm = CIFAR10DataModule(data_dir="./cifar10", batch_size=128)
     dm.prepare_data()
     dm.setup(stage="test")
