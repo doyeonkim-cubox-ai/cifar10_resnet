@@ -36,15 +36,15 @@ python -m cifar10_resnet.test -model {모델}
 ##### 3. plots
 - training error(resnet)
 
-<img src="./result/resnet20~110_train.png" width="550" height="300">, <img src="./result/resnet110~1202_train.png" width="250" height="300">
+<img src="./result/resnet20~110_train.png" width="500" height="300">, <img src="./result/resnet110~1202_train.png" width="300" height="300">
 
 - testing error(resnet)
 
-<img src="./result/resnet20~110_test.png" width="600" height="300">, <img src="./result/resnet110~1202_test.png" width="300" height="300">
+<img src="./result/resnet20~110_test.png" width="500" height="300">, <img src="./result/resnet110~1202_test.png" width="300" height="300">
 
 - resnet
 
-<img src="./result/resnet20~110.png" width="600" height="300">, <img src="./result/resnet110~1202.png" width="300" height="300">
+<img src="./result/resnet20~110.png" width="500" height="300">, <img src="./result/resnet110~1202.png" width="300" height="300">
 
 - plain
 
