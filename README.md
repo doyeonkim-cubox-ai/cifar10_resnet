@@ -28,7 +28,7 @@ python -m cifar10_resnet.test -model {모델}
 | resnet | 20        | 0.27M    | 9.15     |
 | resnet | 32        | 0.46M    | 8.62     |
 | resnet | 44        | 0.66M    | 7.82     |
-| resnet | 56        | 0.85M    | tbd      |
+| resnet | 56        | 0.85M    | 7.91     |
 | resnet | 110       | 1.7M     | 7.28     |
 | resnet | 1202      | 19.4M    | 9.38     |
 
