@@ -41,8 +41,6 @@ def main():
         accelerator='cuda', logger=wandb_logger,
         callbacks=[lr_monitor, cp_callback], devices=1)
     trainer.fit(net, dm)
-    x = torch.randn(1, 3, 32, 32)
-    net.to_onnx(f"./model/model_{m}.onnx", x)
 
 
 if __name__ == "__main__":
